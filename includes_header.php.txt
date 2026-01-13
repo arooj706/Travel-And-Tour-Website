@@ -1,0 +1,24 @@
+<?php
+require_once __DIR__ . '/config.php';
+?>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title><?php echo htmlspecialchars(SITE_NAME); ?> - <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'Home'; ?></title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="logo"><a href="/index.php"><?php echo htmlspecialchars(SITE_NAME); ?></a></div>
+      <nav class="main-nav" id="mainNav">
+        <a href="/index.php">Home</a>
+        <a href="/destinations.php">Destinations</a>
+        <a href="/index.php#contact">Contact</a>
+      </nav>
+      <button id="menuToggle" class="menu-toggle">☰</button>
+    </div>
+  </header>
+  <main>
