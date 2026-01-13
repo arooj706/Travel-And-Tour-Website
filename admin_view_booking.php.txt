@@ -1,0 +1,43 @@
+<?php
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/db.php';
+
+if (empty($_SESSION['is_admin'])) {
+    header('Location: /admin/login.php');
+    exit;
+}
+
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+if ($id < 1) {
+    header('Location: /admin/dashboard.php');
+    exit;
+}
+
+$pdo = getPDO();
+$stmt = $pdo->prepare("SELECT * FROM bookings WHERE id = :id LIMIT 1");
+$stmt->execute([':id' => $id]);
+$b = $stmt->fetch();
+
+if (!$b) {
+    header('Location: /admin/dashboard.php');
+    exit;
+}
+
+$page_title = "Booking #$id";
+require_once __DIR__ . '/../includes/header.php';
+?>
+<section class="container">
+  <h2>Booking Details — #<?php echo (int)$b['id']; ?></h2>
+  <div class="card" style="padding:1rem;">
+    <p><strong>Name:</strong> <?php echo htmlspecialchars($b['name']); ?></p>
+    <p><strong>Email:</strong> <?php echo htmlspecialchars($b['email']); ?></p>
+    <p><strong>Phone:</strong> <?php echo htmlspecialchars($b['phone']); ?></p>
+    <p><strong>Destination:</strong> <?php echo htmlspecialchars($b['destination']); ?></p>
+    <p><strong>Travel Date:</strong> <?php echo htmlspecialchars($b['travel_date']); ?></p>
+    <p><strong>People:</strong> <?php echo (int)$b['people']; ?></p>
+    <p><strong>Message:</strong><br/><?php echo nl2br(htmlspecialchars($b['message'])); ?></p>
+    <p><small>Submitted: <?php echo htmlspecialchars($b['created_at']); ?></small></p>
+    <p><a href="/admin/dashboard.php" class="btn secondary">Back to dashboard</a></p>
+  </div>
+</section>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

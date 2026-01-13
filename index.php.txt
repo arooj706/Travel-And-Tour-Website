@@ -1,0 +1,99 @@
+<?php
+$page_title = "Home";
+require_once __DIR__ . '/includes/header.php';
+
+// Simple static destinations array (could be loaded from DB)
+$destinations = [
+    ['id'=>1, 'title'=>'Paris, France', 'price'=>1200, 'summary'=>'Romantic city of lights, art and history.'],
+    ['id'=>2, 'title'=>'Bali, Indonesia', 'price'=>900, 'summary'=>'Tropical beaches and lush rice terraces.'],
+    ['id'=>3, 'title'=>'Kyoto, Japan', 'price'=>1500, 'summary'=>'Traditional temples and seasonal beauty.']
+];
+?>
+<section class="hero">
+  <div class="container">
+    <h1>Explore the world with <?php echo htmlspecialchars(SITE_NAME); ?></h1>
+    <p>Hand-picked tours, local experiences, and responsive support.</p>
+    <a href="/destinations.php" class="btn">See Destinations</a>
+  </div>
+</section>
+
+<section class="container featured">
+  <h2>Featured Destinations</h2>
+  <div class="grid">
+    <?php foreach ($destinations as $d): ?>
+      <article class="card">
+        <h3><?php echo htmlspecialchars($d['title']); ?></h3>
+        <p><?php echo htmlspecialchars($d['summary']); ?></p>
+        <p class="price">$<?php echo number_format($d['price'], 0); ?> per person</p>
+        <a class="btn" href="/destinations.php?id=<?php echo $d['id']; ?>">View</a>
+        <button class="btn secondary book-now" data-destination="<?php echo htmlspecialchars($d['title']); ?>">Book</button>
+      </article>
+    <?php endforeach; ?>
+  </div>
+</section>
+
+<section id="contact" class="container contact">
+  <h2>Contact Us</h2>
+  <form id="contactForm" action="/contact.php" method="post" novalidate>
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+    <label>
+      Name
+      <input name="name" required />
+    </label>
+    <label>
+      Email
+      <input name="email" type="email" required />
+    </label>
+    <label>
+      Subject
+      <input name="subject" />
+    </label>
+    <label>
+      Message
+      <textarea name="message" required></textarea>
+    </label>
+    <button type="submit" class="btn">Send Message</button>
+  </form>
+</section>
+
+<!-- Booking modal (simple) -->
+<div id="bookingModal" class="modal" aria-hidden="true">
+  <div class="modal-content">
+    <button class="close" id="closeModal">×</button>
+    <h3>Book Your Trip</h3>
+    <form id="bookingForm" action="/booking.php" method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+      <label>
+        Full name
+        <input name="name" required />
+      </label>
+      <label>
+        Email
+        <input name="email" type="email" required />
+      </label>
+      <label>
+        Phone
+        <input name="phone" />
+      </label>
+      <label>
+        Destination
+        <input name="destination" id="destinationInput" required />
+      </label>
+      <label>
+        Travel date
+        <input name="travel_date" type="date" required />
+      </label>
+      <label>
+        People
+        <input name="people" type="number" min="1" value="1" required />
+      </label>
+      <label>
+        Message (optional)
+        <textarea name="message"></textarea>
+      </label>
+      <button type="submit" class="btn">Send Booking</button>
+    </form>
+  </div>
+</div>
+
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

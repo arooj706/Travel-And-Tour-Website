@@ -1,0 +1,40 @@
+<?php
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/db.php';
+
+if (empty($_SESSION['is_admin'])) {
+    header('Location: /admin/login.php');
+    exit;
+}
+
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+if ($id < 1) {
+    header('Location: /admin/dashboard.php');
+    exit;
+}
+
+$pdo = getPDO();
+$stmt = $pdo->prepare("SELECT * FROM messages WHERE id = :id LIMIT 1");
+$stmt->execute([':id' => $id]);
+$m = $stmt->fetch();
+
+if (!$m) {
+    header('Location: /admin/dashboard.php');
+    exit;
+}
+
+$page_title = "Message #$id";
+require_once __DIR__ . '/../includes/header.php';
+?>
+<section class="container">
+  <h2>Message Details — #<?php echo (int)$m['id']; ?></h2>
+  <div class="card" style="padding:1rem;">
+    <p><strong>Name:</strong> <?php echo htmlspecialchars($m['name']); ?></p>
+    <p><strong>Email:</strong> <?php echo htmlspecialchars($m['email']); ?></p>
+    <p><strong>Subject:</strong> <?php echo htmlspecialchars($m['subject']); ?></p>
+    <p><strong>Message:</strong><br/><?php echo nl2br(htmlspecialchars($m['message'])); ?></p>
+    <p><small>Submitted: <?php echo htmlspecialchars($m['created_at']); ?></small></p>
+    <p><a href="/admin/dashboard.php" class="btn secondary">Back to dashboard</a></p>
+  </div>
+</section>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

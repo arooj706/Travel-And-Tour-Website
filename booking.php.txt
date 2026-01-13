@@ -1,0 +1,54 @@
+<?php
+require_once __DIR__ . '/includes/db.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: /index.php');
+    exit;
+}
+
+// CSRF check
+if (empty($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    exit('Invalid CSRF token');
+}
+
+// Basic input validation & sanitization
+$name = trim($_POST['name'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$phone = trim($_POST['phone'] ?? '');
+$destination = trim($_POST['destination'] ?? '');
+$travel_date = trim($_POST['travel_date'] ?? '');
+$people = intval($_POST['people'] ?? 1);
+$message = trim($_POST['message'] ?? '');
+
+$errors = [];
+if ($name === '') $errors[] = 'Name is required';
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Valid email is required';
+if ($destination === '') $errors[] = 'Destination is required';
+if ($travel_date === '' || !strtotime($travel_date)) $errors[] = 'Valid travel date is required';
+if ($people < 1) $errors[] = 'People must be at least 1';
+
+if (!empty($errors)) {
+    // For simplicity, redirect back with error messages via session
+    $_SESSION['booking_errors'] = $errors;
+    header('Location: /index.php');
+    exit;
+}
+
+try {
+    $pdo = getPDO();
+    $stmt = $pdo->prepare("INSERT INTO bookings (name, email, phone, destination, travel_date, people, message) VALUES (:name, :email, :phone, :destination, :travel_date, :people, :message)");
+    $stmt->execute([
+        ':name' => $name,
+        ':email' => $email,
+        ':phone' => $phone,
+        ':destination' => $destination,
+        ':travel_date' => $travel_date,
+        ':people' => $people,
+        ':message' => $message,
+    ]);
+    $_SESSION['booking_success'] = "Thanks $name, your booking request for " . htmlspecialchars($destination) . " was received.";
+} catch (Exception $e) {
+    $_SESSION['booking_errors'] = ['Server error: ' . $e->getMessage()];
+}
+header('Location: /index.php');
+exit;

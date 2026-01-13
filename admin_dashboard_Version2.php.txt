@@ -1,0 +1,85 @@
+<?php
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/db.php';
+
+// Protect route
+if (empty($_SESSION['is_admin'])) {
+    header('Location: /admin/login.php');
+    exit;
+}
+
+$page_title = "Admin Dashboard";
+require_once __DIR__ . '/../includes/header.php';
+
+$pdo = getPDO();
+
+// Fetch recent bookings
+$stmt = $pdo->query("SELECT id, name, email, destination, travel_date, people, created_at FROM bookings ORDER BY created_at DESC LIMIT 100");
+$bookings = $stmt->fetchAll();
+
+// Fetch recent messages
+$stmt2 = $pdo->query("SELECT id, name, email, subject, created_at FROM messages ORDER BY created_at DESC LIMIT 100");
+$messages = $stmt2->fetchAll();
+?>
+<section class="container">
+  <h2>Admin Dashboard</h2>
+  <p>Welcome, <?php echo htmlspecialchars($_SESSION['admin_user'] ?? ADMIN_USER); ?> — <a href="/admin/logout.php">Logout</a></p>
+
+  <h3>Recent Bookings</h3>
+  <?php if (empty($bookings)): ?>
+    <div class="card">No bookings found.</div>
+  <?php else: ?>
+    <div class="card" style="overflow:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">ID</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Name</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Email</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Destination</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Travel Date</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">People</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Received</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">View</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($bookings as $b): ?>
+          <tr>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo (int)$b['id']; ?></td>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo htmlspecialchars($b['name']); ?></td>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo htmlspecialchars($b['email']); ?></td>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo htmlspecialchars($b['destination']); ?></td>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo htmlspecialchars($b['travel_date']); ?></td>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo (int)$b['people']; ?></td>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo htmlspecialchars($b['created_at']); ?></td>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><a href="/admin/view_booking.php?id=<?php echo (int)$b['id']; ?>">View</a></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php endif; ?>
+
+  <h3 style="margin-top:1.25rem">Recent Messages</h3>
+  <?php if (empty($messages)): ?>
+    <div class="card">No messages found.</div>
+  <?php else: ?>
+    <div class="card" style="overflow:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">ID</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Name</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Email</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Subject</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">Received</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #eee">View</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($messages as $m): ?>
+          <tr>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo (int)$m['id']; ?></td>
+            <td style="padding:.5rem;border-bottom:1px solid #f1f1f1"><?php echo htmlspecialchars($m['name']); ?></td>
+            <td style="

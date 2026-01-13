@@ -1,0 +1,40 @@
+<?php
+$page_title = "Destinations";
+require_once __DIR__ . '/includes/header.php';
+
+// Static list - for a real app, load from DB
+$destinations = [
+    1 => ['title'=>'Paris, France', 'price'=>1200, 'description'=>'Enjoy world-class museums, cuisine and romance.'],
+    2 => ['title'=>'Bali, Indonesia', 'price'=>900, 'description'=>'Relax on beaches, visit temples and enjoy culture.'],
+    3 => ['title'=>'Kyoto, Japan', 'price'=>1500, 'description'=>'Discover ancient temples, gardens, and Japanese tradition.'],
+];
+
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+?>
+<section class="container">
+  <?php if ($id && isset($destinations[$id])): 
+      $d = $destinations[$id];
+  ?>
+    <article class="detail">
+      <h2><?php echo htmlspecialchars($d['title']); ?></h2>
+      <p><?php echo htmlspecialchars($d['description']); ?></p>
+      <p class="price">$<?php echo number_format($d['price'],0); ?></p>
+      <button class="btn book-now" data-destination="<?php echo htmlspecialchars($d['title']); ?>">Book This Trip</button>
+      <a href="/destinations.php" class="btn secondary">Back to list</a>
+    </article>
+  <?php else: ?>
+    <h2>All Destinations</h2>
+    <div class="grid">
+      <?php foreach ($destinations as $key => $d): ?>
+        <article class="card">
+          <h3><?php echo htmlspecialchars($d['title']); ?></h3>
+          <p><?php echo htmlspecialchars($d['description']); ?></p>
+          <p class="price">$<?php echo number_format($d['price'],0); ?></p>
+          <a class="btn" href="/destinations.php?id=<?php echo (int)$key; ?>">Details</a>
+          <button class="btn secondary book-now" data-destination="<?php echo htmlspecialchars($d['title']); ?>">Book</button>
+        </article>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+</section>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
